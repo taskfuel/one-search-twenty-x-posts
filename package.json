@@ -1,0 +1,13 @@
+{
+  "name": "taskfuel-x-search",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One search, twenty X posts, in full. Powered by TaskFuel.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

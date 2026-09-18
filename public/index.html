@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>X search</title>
+<style>
+  :root {
+    --cream: #f4ebdd;
+    --ink: #1c1a17;
+    --muted: #6b6357;
+    --line: #ddd0bd;
+    --card: #fffdf9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 48px 24px 80px;
+    background: var(--cream);
+    color: var(--ink);
+    font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 32px; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 32px; max-width: 60ch; }
+  label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+  input[type="text"] {
+    width: 100%; padding: 14px 16px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--card);
+    color: inherit; font: inherit;
+  }
+  input[type="text"]:focus { outline: 2px solid #b4835a; outline-offset: 1px; }
+  .row { display: flex; gap: 12px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+  button {
+    background: var(--ink); color: var(--cream); border: 0; border-radius: 10px;
+    padding: 12px 22px; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .total { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+  .examples { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .chip {
+    background: transparent; color: var(--muted); border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 500;
+  }
+  .chip:hover { color: var(--ink); border-color: var(--ink); }
+  .hint { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+  .banner {
+    background: #fff4d6; border: 1px solid #e6c98a; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 28px; font-size: 14px;
+  }
+  .err {
+    background: #fdeceb; border: 1px solid #e8b4ae; border-radius: 10px;
+    padding: 12px 16px; margin-top: 24px; font-size: 14px; color: #7a2418;
+  }
+  .posts { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+  .post {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin-bottom: 8px; }
+  .author { font-weight: 600; font-size: 14px; }
+  .when { color: var(--muted); font-size: 13px; }
+  .tag {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--muted);
+  }
+  .tag.long { border-color: #b4835a; color: #8a5a2b; }
+  .text { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 12px; }
+  .stats { display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+  .stats a { color: inherit; }
+  .count { font-variant-numeric: tabular-nums; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 14px; }
+  a { color: inherit; }
+  @keyframes pulse { 0%,100% { opacity: 0.45 } 50% { opacity: 0.9 } }
+  .working { animation: pulse 1.4s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<main>
+  <h1>One search, twenty X posts, in full.</h1>
+  <p class="sub">
+    Search X by person, phrase or ticker and read the whole post, long ones included,
+    with its likes and replies. Half a cent a search from one prepaid balance. No X
+    developer account.
+  </p>
+
+  <div id="banner" class="banner" hidden>
+    No API key yet. Add <code>TASKFUEL_API_KEY</code> in the Secrets tab, then hit Run again.
+    Get one at <a href="https://app.taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts" target="_blank" rel="noopener">app.taskfuel.ai</a>,
+    where the first $5 is free.
+  </div>
+
+  <label for="query">The search</label>
+  <input type="text" id="query" value="from:karpathy" spellcheck="false" />
+
+  <div class="examples" id="examples"></div>
+
+  <div class="row">
+    <button id="go">Search X</button>
+    <span class="total" id="total"></span>
+  </div>
+  <p class="hint">
+    Newest first, twenty per search. Narrow the query rather than expecting the
+    twenty best: on a busy topic, twenty posts can cover only a few minutes.
+  </p>
+
+  <div id="error" class="err" hidden></div>
+  <div class="posts" id="posts"></div>
+
+  <footer>
+    Powered by <a href="https://taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts" target="_blank" rel="noopener">TaskFuel</a>,
+    searching X through <a href="https://useotto.xyz/" target="_blank" rel="noopener">Otto</a>.
+    Open it in Replit, add your own key, change the search.
+  </footer>
+</main>
+
+<script>
+  const input = document.getElementById("query");
+  const go = document.getElementById("go");
+  const postsEl = document.getElementById("posts");
+  const errorEl = document.getElementById("error");
+  const totalEl = document.getElementById("total");
+  const examplesEl = document.getElementById("examples");
+
+  let spent = 0;
+
+  fetch("/api/config").then((r) => r.json()).then((cfg) => {
+    document.getElementById("banner").hidden = cfg.hasKey;
+    for (const ex of cfg.examples) {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.textContent = ex.label;
+      b.title = ex.query;
+      b.onclick = () => { input.value = ex.query; input.focus(); };
+      examplesEl.append(b);
+    }
+  });
+
+  const when = (iso) => {
+    const mins = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (!Number.isFinite(mins)) return "";
+    if (mins < 60) return `${mins}m ago`;
+    if (mins < 60 * 24) return `${Math.round(mins / 60)}h ago`;
+    return new Date(iso).toLocaleDateString();
+  };
+
+  const num = (n) => (n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n));
+
+  function render(posts) {
+    postsEl.innerHTML = "";
+    const longest = posts.reduce((max, p) => Math.max(max, p.characters), 0);
+
+    for (const post of posts) {
+      const el = document.createElement("article");
+      el.className = "post";
+
+      const head = document.createElement("div");
+      head.className = "head";
+      const author = document.createElement("span");
+      author.className = "author";
+      author.textContent = post.author || "unknown";
+      const time = document.createElement("span");
+      time.className = "when";
+      time.textContent = when(post.createdAt);
+      head.append(author, time);
+
+      if (post.longForm) {
+        const tag = document.createElement("span");
+        tag.className = "tag long";
+        tag.textContent = `long form · ${post.characters} characters`;
+        head.append(tag);
+      }
+      if (post.characters === longest && posts.length > 1) {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = "longest in this search";
+        head.append(tag);
+      }
+
+      const text = document.createElement("p");
+      text.className = "text";
+      text.textContent = post.text;
+
+      const stats = document.createElement("div");
+      stats.className = "stats";
+      for (const [label, value] of [
+        ["likes", post.likes], ["reposts", post.retweets],
+        ["replies", post.replies], ["quotes", post.quotes],
+      ]) {
+        const s = document.createElement("span");
+        s.className = "count";
+        s.textContent = `${num(value)} ${label}`;
+        stats.append(s);
+      }
+      if (post.url) {
+        const a = document.createElement("a");
+        a.href = post.url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = "open on X";
+        stats.append(a);
+      }
+
+      el.append(head, text, stats);
+      postsEl.append(el);
+    }
+  }
+
+  async function run() {
+    const query = input.value.trim();
+    if (!query) return;
+
+    go.disabled = true;
+    errorEl.hidden = true;
+    postsEl.innerHTML = "";
+    totalEl.className = "total working";
+    totalEl.textContent = "searching";
+
+    try {
+      const res = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `request failed (${res.status})`);
+
+      spent += data.cost || 0;
+      render(data.posts);
+      totalEl.className = "total";
+      totalEl.textContent = data.posts.length
+        ? `${data.posts.length} posts · paid $${(data.cost || 0).toFixed(3)} · $${spent.toFixed(3)} this session`
+        : `no posts matched · paid $${(data.cost || 0).toFixed(3)}`;
+    } catch (err) {
+      totalEl.textContent = "";
+      totalEl.className = "total";
+      errorEl.hidden = false;
+      errorEl.textContent = String(err.message || err);
+    } finally {
+      go.disabled = false;
+    }
+  }
+
+  go.onclick = run;
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+</script>
+</body>
+</html>
