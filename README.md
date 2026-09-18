@@ -46,7 +46,7 @@ the app shows you the query it ran:
 | your question | the query it writes |
 |---|---|
 | What has Andrej Karpathy been posting lately? | `from:karpathy` |
-| Find the last 20 Tweets that mentioned taskfuel_ai. | `@taskfuel_ai` |
+| Find the last 20 Tweets that mentioned @taskfuelai. | `@taskfuelai` |
 | Find people saying their agent bought something on its own. | `"my agent bought" OR "agent paid for it itself"` |
 | What are people saying about $BTC right now? | `$BTC` |
 

@@ -33,7 +33,7 @@ const DAILY_BUDGET_USD = Number(process.env.DAILY_BUDGET_USD || 1.0);
 const EXAMPLES = [
   { label: "One person's timeline", question: "What has Andrej Karpathy been posting lately?" },
   { label: "A phrase, two ways", question: "Find people saying their agent bought something on its own." },
-  { label: "Mentions of an account", question: "Find the last 20 Tweets that mentioned taskfuel_ai." },
+  { label: "Mentions of an account", question: "Find the last 20 Tweets that mentioned @taskfuelai." },
   { label: "A ticker", question: "What are people saying about $BTC right now?" },
 ];
 
@@ -50,8 +50,8 @@ Rules:
 - Results are always the 20 newest matches, so ignore any request for a count or a date range.
 
 Examples:
-Request: Find the last 20 Tweets that mentioned taskfuel_ai.
-Query: @taskfuel_ai
+Request: Find the last 20 Tweets that mentioned @taskfuelai.
+Query: @taskfuelai
 Request: What has Andrej Karpathy been posting?
 Query: from:karpathy
 Request: People saying their agent bought something on its own
