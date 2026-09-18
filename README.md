@@ -6,8 +6,9 @@ Open it in Replit with one click, add your own key, and ask X a question.
 
 Ask in plain English. A model turns your question into an X search query, the
 search runs, and up to twenty posts come back newest first, each with its full
-text, its likes, reposts, replies and quotes, and a link to the original. A
-narrow question returns fewer than twenty, which is the search doing its job.
+text, a link to the original, and how many likes, reposts, replies and quotes it
+drew. Those are counts, not the replies themselves. A narrow question returns
+fewer than twenty, which is the search doing its job.
 
 | call | what it does | price |
 |---|---|---|
