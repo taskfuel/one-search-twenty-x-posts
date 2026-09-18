@@ -68,12 +68,14 @@ Read the full text of each post rather than the preview, tell me what people
 keep bringing up, and link one post per point. Show me what the search cost.
 ```
 
-Connect one with:
+Not connected yet? Ask your agent:
 
-```bash
-curl -fsSL https://taskfuel.ai/install.sh | sh
-taskfuel connect
 ```
+Fetch https://app.taskfuel.ai/llms.txt and set taskfuel up for me.
+```
+
+That page is written for agents and points at the three ways in, so yours picks
+whichever fits how it runs.
 
 The app builds that prompt from whatever you typed and puts a copy button next
 to it, so a question you liked here can move straight into your own agent.
