@@ -59,6 +59,31 @@
     background: var(--card); border: 1px solid var(--line); border-radius: 6px;
     padding: 2px 7px; color: var(--ink); font-size: 13px;
   }
+  .handoff {
+    margin-top: 28px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px 20px;
+  }
+  .handoff-head {
+    display: flex; gap: 12px; align-items: baseline; justify-content: space-between;
+    flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .handoff h2 { font-size: 15px; margin: 0; letter-spacing: -0.01em; }
+  .handoff p { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+  .handoff pre {
+    margin: 0; padding: 14px 16px; background: #f7f0e4; border: 1px solid var(--line);
+    border-radius: 8px; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink);
+    font-variant-ligatures: none; /* people copy this text; keep it literal */
+  }
+  .copy {
+    background: transparent; color: var(--ink); border: 1px solid var(--ink);
+    border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600;
+  }
+  .copy.done { border-color: #4f7a52; color: #4f7a52; }
+  .handoff code {
+    background: #f7f0e4; border: 1px solid var(--line); border-radius: 6px;
+    padding: 1px 6px; font-size: 12px; font-variant-ligatures: none;
+  }
   .posts { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
   .post {
     background: var(--card); border: 1px solid var(--line); border-radius: 12px;
@@ -86,8 +111,8 @@
 <main>
   <h1>Ask X a question, read the posts in full.</h1>
   <p class="sub">
-    Ask in plain English. A model writes the X search query, the search runs, and you
-    get up to twenty posts back in full, long ones included, with their likes and
+    Ask in plain English. Your agent writes the X search query, runs the search, and
+    hands back up to twenty posts in full, long ones included, with their likes and
     replies. Under a cent a question, from one prepaid balance. No X developer account.
   </p>
 
@@ -111,6 +136,21 @@
     Newest first, up to twenty per question. A narrow question returns fewer, and on a
     busy topic those twenty can cover only a few minutes.
   </p>
+
+  <section class="handoff">
+    <div class="handoff-head">
+      <h2>Or skip this page and ask your own agent</h2>
+      <button class="copy" id="copy">Copy prompt</button>
+    </div>
+    <pre id="prompt"></pre>
+    <p>
+      This page is standing in for your agent. Once yours is connected to TaskFuel it
+      makes the same two calls, in whatever you already work in.
+      <br />
+      Not connected yet? Run <code>curl -fsSL https://taskfuel.ai/install.sh | sh</code>
+      then <code>taskfuel connect</code>.
+    </p>
+  </section>
 
   <div id="error" class="err" hidden></div>
   <p id="query-used" class="query-used" hidden></p>
@@ -144,6 +184,34 @@
       examplesEl.append(b);
     }
   });
+
+  const promptEl = document.getElementById("prompt");
+  const copyBtn = document.getElementById("copy");
+
+  const promptFor = (question) =>
+    `Using TaskFuel, search X for: ${question || "..."}\n` +
+    "Read the full text of each post rather than the preview, tell me what people keep " +
+    "bringing up, and link one post per point. Show me what the search cost.";
+
+  const syncPrompt = () => { promptEl.textContent = promptFor(input.value.trim()); };
+  input.addEventListener("input", syncPrompt);
+  syncPrompt();
+
+  copyBtn.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(promptEl.textContent);
+      copyBtn.textContent = "Copied";
+      copyBtn.classList.add("done");
+      setTimeout(() => { copyBtn.textContent = "Copy prompt"; copyBtn.classList.remove("done"); }, 1600);
+    } catch {
+      // Clipboard access can be blocked. Select it so the keyboard still works.
+      const range = document.createRange();
+      range.selectNodeContents(promptEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  };
 
   const when = (iso) => {
     const mins = Math.round((Date.now() - new Date(iso)) / 60000);

@@ -56,6 +56,28 @@ gets you the last twenty matching posts and not the twenty best ones. On a busy
 topic that can be a few minutes of posts. Ask something narrower instead, and
 expect fewer results when you do.
 
+## Or skip the app
+
+The page is standing in for an agent: it writes the query and runs the search
+the same way yours would. Once your agent is connected to TaskFuel, ask it
+directly and skip the app altogether.
+
+```
+Using TaskFuel, search X for: what has Andrej Karpathy been posting lately?
+Read the full text of each post rather than the preview, tell me what people
+keep bringing up, and link one post per point. Show me what the search cost.
+```
+
+Connect one with:
+
+```bash
+curl -fsSL https://taskfuel.ai/install.sh | sh
+taskfuel connect
+```
+
+The app builds that prompt from whatever you typed and puts a copy button next
+to it, so a question you liked here can move straight into your own agent.
+
 ## How it works
 
 Both paid calls go to the same endpoint, one to write the query and one to run
