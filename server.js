@@ -1,4 +1,4 @@
-// One question, twenty X posts, in full.
+// One question, up to twenty X posts, in full.
 //
 // Ask in plain English. A model turns the question into an X search query, then
 // the search runs. Both calls go through the TaskFuel gateway, which pays the
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 const KEY = process.env.TASKFUEL_API_KEY;
 const GATEWAY = "https://app.taskfuel.ai/v1/call";
 
-// X search. One call returns 20 matching posts, newest first.
+// X search. One call returns up to 20 matching posts, newest first.
 const SEARCH_URL = "https://x402.ottoai.services/tweet-search";
 
 // The model that writes the search query. Any of the catalog's 78 models works
@@ -47,7 +47,7 @@ Rules:
 - from:handle for one persons posts. @handle for mentions of an account. $TICKER for a ticker.
 - "quoted phrase" for exact wording. OR between alternatives. -term to exclude.
 - Never invent a handle. If the request names one, use it exactly as given.
-- Results are always the 20 newest matches, so ignore any request for a count or a date range.
+- Results are at most the 20 newest matches, so ignore any request for a count or a date range.
 
 Examples:
 Request: Find the last 20 Tweets that mentioned @taskfuelai.

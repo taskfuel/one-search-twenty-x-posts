@@ -1,17 +1,18 @@
-# One question, twenty X posts, in full
+# One question, up to twenty X posts, in full
 
 [![Run on Replit](https://replit.com/badge/github/taskfuel/one-search-twenty-x-posts)](https://replit.com/github.com/taskfuel/one-search-twenty-x-posts)
 
 Open it in Replit with one click, add your own key, and ask X a question.
 
 Ask in plain English. A model turns your question into an X search query, the
-search runs, and twenty posts come back newest first, each with its full text,
-its likes, reposts, replies and quotes, and a link to the original.
+search runs, and up to twenty posts come back newest first, each with its full
+text, its likes, reposts, replies and quotes, and a link to the original. A
+narrow question returns fewer than twenty, which is the search doing its job.
 
 | call | what it does | price |
 |---|---|---|
 | chat completion | writes the search query from your question | $0.002 |
-| X search | returns twenty matching posts | $0.005 |
+| X search | returns up to twenty matching posts | $0.005 |
 
 Quoted 2026-09-18, so under a cent a question. The search price is per call, not
 per post, and does not change with how much text comes back. The model price
@@ -52,7 +53,8 @@ the app shows you the query it ran:
 
 Results are newest first rather than ranked by relevance, so a broad question
 gets you the last twenty matching posts and not the twenty best ones. On a busy
-topic that can be a few minutes of posts. Ask something narrower instead.
+topic that can be a few minutes of posts. Ask something narrower instead, and
+expect fewer results when you do.
 
 ## How it works
 
@@ -113,7 +115,7 @@ balance. Keep the budget low, or make each visitor bring their own key.
 - **Change how questions are read.** `QUERY_SYSTEM` in `server.js` is the whole
   translation prompt, examples included. Without its "smallest query" rule,
   models pad a simple request with a dozen synonyms and match nothing.
-- **Feed it to a model.** Twenty full posts is a small enough payload to hand
+- **Feed it to a model.** Even twenty full posts is a small enough payload to hand
   straight to an LLM, which is the point: ask what people keep bringing up, and
   have it cite the posts.
 - **Find something else entirely.** `GET https://app.taskfuel.ai/v1/discover?q=...`
