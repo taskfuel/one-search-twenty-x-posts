@@ -88,6 +88,11 @@ the limits live in the code:
 
 Both are optional secrets you can change without touching the code.
 
+The per-call ceiling is enforced by the gateway, so it always holds. The daily
+budget is weaker than it looks: the counter lives in memory, so it resets
+whenever the app restarts, and Replit restarts these often. It stops a runaway
+loop inside one session. It is not a hard cap across a day.
+
 If you make this public and let strangers use it, they are spending *your*
 balance. Keep the budget low, or make each visitor bring their own key.
 
