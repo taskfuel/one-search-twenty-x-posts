@@ -52,7 +52,14 @@
     background: #fdeceb; border: 1px solid #e8b4ae; border-radius: 10px;
     padding: 12px 16px; margin-top: 24px; font-size: 14px; color: #7a2418;
   }
-  .posts { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+  .query-used {
+    margin: 24px 0 0; font-size: 14px; color: var(--muted);
+  }
+  .query-used code {
+    background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+    padding: 2px 7px; color: var(--ink); font-size: 13px;
+  }
+  .posts { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
   .post {
     background: var(--card); border: 1px solid var(--line); border-radius: 12px;
     padding: 16px 18px;
@@ -77,45 +84,47 @@
 </head>
 <body>
 <main>
-  <h1>One search, twenty X posts, in full.</h1>
+  <h1>Ask X a question, read twenty posts.</h1>
   <p class="sub">
-    Search X by person, phrase or ticker and read the whole post, long ones included,
-    with its likes and replies. Half a cent a search from one prepaid balance. No X
-    developer account.
+    Ask in plain English. A model writes the X search query, the search runs, and you
+    get twenty posts back in full, long ones included, with their likes and replies.
+    Under a cent a question, from one prepaid balance. No X developer account.
   </p>
 
   <div id="banner" class="banner" hidden>
-    No API key yet. Add <code>TASKFUEL_API_KEY</code> in the Secrets tab, then hit Run again.
-    Get one at <a href="https://app.taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts" target="_blank" rel="noopener">app.taskfuel.ai</a>,
+    No API key yet. This app needs a secret named <code>TASKFUEL_API_KEY</code>. Replit's Agent
+    asks for it and saves it for you, or you can add it yourself in the Secrets tool, then
+    start the app again. Get a key at <a href="https://app.taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts" target="_blank" rel="noopener">app.taskfuel.ai</a>,
     where the first $5 is free.
   </div>
 
-  <label for="query">The search</label>
-  <input type="text" id="query" value="from:karpathy" spellcheck="false" />
+  <label for="question">Your question</label>
+  <input type="text" id="question" value="What has Andrej Karpathy been posting lately?" />
 
   <div class="examples" id="examples"></div>
 
   <div class="row">
-    <button id="go">Search X</button>
+    <button id="go">Ask X</button>
     <span class="total" id="total"></span>
   </div>
   <p class="hint">
-    Newest first, twenty per search. Narrow the query rather than expecting the
+    Newest first, twenty per question. Ask something narrow rather than expecting the
     twenty best: on a busy topic, twenty posts can cover only a few minutes.
   </p>
 
   <div id="error" class="err" hidden></div>
+  <p id="query-used" class="query-used" hidden></p>
   <div class="posts" id="posts"></div>
 
   <footer>
-    Powered by <a href="https://taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts" target="_blank" rel="noopener">TaskFuel</a>,
-    searching X through <a href="https://useotto.xyz/" target="_blank" rel="noopener">Otto</a>.
-    Open it in Replit, add your own key, change the search.
+    Powered by <a href="https://taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts" target="_blank" rel="noopener">TaskFuel</a>.
+    Open it in Replit, add your own key, ask your own questions.
   </footer>
 </main>
 
 <script>
-  const input = document.getElementById("query");
+  const input = document.getElementById("question");
+  const queryEl = document.getElementById("query-used");
   const go = document.getElementById("go");
   const postsEl = document.getElementById("posts");
   const errorEl = document.getElementById("error");
@@ -130,8 +139,8 @@
       const b = document.createElement("button");
       b.className = "chip";
       b.textContent = ex.label;
-      b.title = ex.query;
-      b.onclick = () => { input.value = ex.query; input.focus(); };
+      b.title = ex.question;
+      b.onclick = () => { input.value = ex.question; input.focus(); };
       examplesEl.append(b);
     }
   });
@@ -207,11 +216,12 @@
   }
 
   async function run() {
-    const query = input.value.trim();
-    if (!query) return;
+    const question = input.value.trim();
+    if (!question) return;
 
     go.disabled = true;
     errorEl.hidden = true;
+    queryEl.hidden = true;
     postsEl.innerHTML = "";
     totalEl.className = "total working";
     totalEl.textContent = "searching";
@@ -220,20 +230,30 @@
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ question }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `request failed (${res.status})`);
 
       spent += data.cost || 0;
       render(data.posts);
+
+      queryEl.hidden = false;
+      queryEl.innerHTML = "";
+      queryEl.append("Searched X for ");
+      const code = document.createElement("code");
+      code.textContent = data.query;
+      queryEl.append(code);
+
       totalEl.className = "total";
+      const prices = `$${(data.queryCost || 0).toFixed(3)} to write the query, $${(data.searchCost || 0).toFixed(3)} to run it`;
       totalEl.textContent = data.posts.length
-        ? `${data.posts.length} posts · paid $${(data.cost || 0).toFixed(3)} · $${spent.toFixed(3)} this session`
-        : `no posts matched · paid $${(data.cost || 0).toFixed(3)}`;
+        ? `${data.posts.length} posts · ${prices} · $${spent.toFixed(3)} this session`
+        : `no posts matched · ${prices}`;
     } catch (err) {
       totalEl.textContent = "";
       totalEl.className = "total";
+      queryEl.hidden = true;
       errorEl.hidden = false;
       errorEl.textContent = String(err.message || err);
     } finally {
