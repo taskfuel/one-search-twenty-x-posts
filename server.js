@@ -229,7 +229,7 @@ async function handle(req, res) {
   if (req.method === "POST" && req.url === "/api/search") {
     if (!KEY) {
       return json(res, 500, {
-        error: "No TASKFUEL_API_KEY set. Add it in the Secrets tab, then hit Run again.",
+        error: "No TASKFUEL_API_KEY set. Add it as a secret, then start the app again.",
       });
     }
 
