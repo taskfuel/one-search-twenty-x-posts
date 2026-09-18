@@ -44,10 +44,13 @@
   }
   .chip:hover { color: var(--ink); border-color: var(--ink); }
   .hint { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
-  .banner {
-    background: #fff4d6; border: 1px solid #e6c98a; border-radius: 10px;
-    padding: 12px 16px; margin-bottom: 28px; font-size: 14px;
+  dialog {
+    border: 1px solid var(--line); border-radius: 14px; background: var(--card);
+    color: var(--ink); padding: 28px 30px; max-width: 440px; font: inherit;
   }
+  dialog::backdrop { background: rgba(28, 26, 23, 0.45); }
+  dialog h2 { margin: 0 0 10px; font-size: 19px; letter-spacing: -0.01em; }
+  dialog p { margin: 0 0 20px; color: var(--muted); font-size: 15px; }
   .err {
     background: #fdeceb; border: 1px solid #e8b4ae; border-radius: 10px;
     padding: 12px 16px; margin-top: 24px; font-size: 14px; color: #7a2418;
@@ -117,12 +120,6 @@
     balance. No X developer account.
   </p>
 
-  <div id="banner" class="banner" hidden>
-    No API key yet. This app needs a secret named <code>TASKFUEL_API_KEY</code>. Replit's Agent
-    asks for it and saves it for you, or you can add it yourself in the Secrets tool, then
-    start the app again. Get a key at <a href="https://app.taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts" target="_blank" rel="noopener">app.taskfuel.ai</a>,
-    where the first $5 is free.
-  </div>
 
   <label for="question">Your question</label>
   <input type="text" id="question" value="What has Andrej Karpathy been posting lately?" />
@@ -157,6 +154,16 @@
   <p id="query-used" class="query-used" hidden></p>
   <div class="posts" id="posts"></div>
 
+  <dialog id="keyPrompt">
+    <h2>No API key yet</h2>
+    <p>
+      Replit's Agent asks for it and saves it for you. Get a key at
+      <a href="https://app.taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts" target="_blank" rel="noopener">app.taskfuel.ai</a>,
+      where the first $5 is free.
+    </p>
+    <button id="keyPromptClose" autofocus>Got it</button>
+  </dialog>
+
   <footer>
     Powered by <a href="https://taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts" target="_blank" rel="noopener">TaskFuel</a>.
     Open it in Replit, add your own key, ask your own questions.
@@ -174,8 +181,13 @@
 
   let spent = 0;
 
+  const keyPrompt = document.getElementById("keyPrompt");
+  let hasKey = true; // assume yes until /api/config says otherwise
+
+  document.getElementById("keyPromptClose").onclick = () => keyPrompt.close();
+
   fetch("/api/config").then((r) => r.json()).then((cfg) => {
-    document.getElementById("banner").hidden = cfg.hasKey;
+    hasKey = cfg.hasKey;
     for (const ex of cfg.examples) {
       const b = document.createElement("button");
       b.className = "chip";
@@ -287,6 +299,10 @@
   async function run() {
     const question = input.value.trim();
     if (!question) return;
+
+    // Nothing to spend against, so say so here rather than letting the request
+    // come back as an error message in the results area.
+    if (!hasKey) return keyPrompt.showModal();
 
     go.disabled = true;
     errorEl.hidden = true;
