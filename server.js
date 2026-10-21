@@ -283,7 +283,7 @@ server.listen(PORT, "0.0.0.0", () => {
   if (!KEY) {
     console.log("  No TASKFUEL_API_KEY yet. Add it as a secret, then start the app again.");
     console.log("  On Replit: the Agent asks for it, or add it in the Secrets tool.");
-    console.log("  Get a key at https://app.taskfuel.ai (first $5 is free).\n");
+    console.log("  Get a key at https://app.taskfuel.ai (the first $1 is free).\n");
   } else {
     console.log(
       `  Budget: $${DAILY_BUDGET_USD.toFixed(2)}/day, $${(MAX_USD_PER_SEARCH + MAX_USD_PER_QUERY).toFixed(2)} max per question\n`,

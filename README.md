@@ -31,7 +31,7 @@ in the results with their length.
 1. **[Open it in Replit](https://replit.com/github.com/taskfuel/one-search-twenty-x-posts).**
    That imports this repo into your own account as a runnable copy.
 2. **Get a key** at [app.taskfuel.ai](https://app.taskfuel.ai/?utm_source=replit&utm_medium=referral&utm_campaign=2026-09-replit-templates&utm_content=one-search-twenty-x-posts).
-   The first $5 is on the house, which is around 700 questions.
+   The first $1 is on the house, which is around 140 questions.
 3. **Give it the key.** It needs a secret named `TASKFUEL_API_KEY`. Replit's
    Agent asks for it and stores it for you, or you can add it yourself in the
    Secrets tool.
